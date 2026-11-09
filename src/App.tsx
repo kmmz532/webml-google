@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { createRawMessage, parseRecipients } from './gmail'
+import { getGmailProfile, requestGmailAccessToken, sendGmailRaw } from './gmailApi'
 import {
   AppBar, Box, Button, Divider, IconButton, Paper, Stack, TextField,
   Toolbar, Typography, useMediaQuery, useTheme,
@@ -27,6 +29,10 @@ export default function App() {
   const [subject, setSubject] = useState(initialDraft.subject)
   const [body, setBody] = useState(initialDraft.body)
   const [notice, setNotice] = useState('')
+  const [accessToken, setAccessToken] = useState('')
+  const [accountEmail, setAccountEmail] = useState('')
+  const [sending, setSending] = useState(false)
+  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined
 
   useEffect(() => {
     try {
@@ -48,6 +54,37 @@ export default function App() {
     link.click()
     URL.revokeObjectURL(url)
     setNotice('プレーンテキストの下書きを保存したよ')
+  }
+
+  const connectGmail = async () => {
+    try {
+      const token = await requestGmailAccessToken(clientId ?? '')
+      const profile = await getGmailProfile(token)
+      setAccessToken(token)
+      setAccountEmail(profile.emailAddress)
+      setNotice(`${profile.emailAddress} と接続したよ`)
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : 'Google認証に失敗したよ')
+    }
+  }
+
+  const sendMail = async () => {
+    if (!accessToken || !accountEmail) {
+      setNotice('先にGmailへ接続してね')
+      return
+    }
+    if (!window.confirm(`この内容を ${to} に送信する？`)) return
+    setSending(true)
+    try {
+      const raw = createRawMessage({ from: accountEmail, to: parseRecipients(to), subject, body })
+      await sendGmailRaw(accessToken, raw)
+      setNotice('メールを送信したよ')
+      clearDraft()
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : '送信に失敗したよ')
+    } finally {
+      setSending(false)
+    }
   }
 
   const clearDraft = () => {
@@ -74,6 +111,9 @@ export default function App() {
               webml-google · テキストメール
             </Typography>
           </Box>
+          <Button size="small" onClick={connectGmail} sx={{ textTransform: 'none', whiteSpace: 'nowrap' }}>
+            {accountEmail || 'Gmail接続'}
+          </Button>
           <IconButton aria-label="下書きTXTを保存" onClick={handleDraft}>
             <SaveAlt />
           </IconButton>
@@ -175,7 +215,7 @@ export default function App() {
           </Typography>
         )}
         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', px: 1, pt: 1.5, lineHeight: 1.6 }}>
-          入力内容はこのブラウザに自動保存されるよ。Gmail APIによる送信はまだ未接続。
+          {clientId ? 'Gmail OAuth接続を利用できるよ。' : 'Gmail接続には VITE_GOOGLE_CLIENT_ID の設定が必要。'} 下書きはブラウザに自動保存。
         </Typography>
       </Box>
 
