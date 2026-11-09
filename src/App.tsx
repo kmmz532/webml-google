@@ -205,7 +205,9 @@ export default function App() {
             >
               下書きTXTを保存
             </Button>
-            <Button variant="outlined" onClick={sendMail} disabled={sending || !accessToken} sx={{ minHeight: 46, borderRadius: 6, textTransform: 'none' }}>\n              {sending ? '送信中…' : '送信'}\n            </Button>\n            <IconButton aria-label="入力内容を削除" onClick={clearDraft} sx={{ width: 46, height: 46 }}>
+            <Button variant="outlined" onClick={sendMail} disabled={sending || !accessToken} sx={{ minHeight: 46, borderRadius: 6, textTransform: 'none' }}>
+              {sending ? '送信中…' : '送信'}
+            </Button>\n            <IconButton aria-label="入力内容を削除" onClick={clearDraft} sx={{ width: 46, height: 46 }}>
               <DeleteOutline />
             </IconButton>
           </Stack>
