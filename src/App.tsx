@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   AppBar, Box, Button, Divider, IconButton, Paper, Stack, TextField,
   Toolbar, Typography, useMediaQuery, useTheme,
@@ -7,11 +7,34 @@ import {
   DeleteOutline, MoreVert, SaveAlt,
 } from '@mui/icons-material'
 
+const DRAFT_STORAGE_KEY = 'webml-google:draft:v1'
+
+type Draft = { to: string; subject: string; body: string }
+
+function loadDraft(): Draft {
+  try {
+    const saved = localStorage.getItem(DRAFT_STORAGE_KEY)
+    if (saved) return { to: '', subject: '', body: '', ...JSON.parse(saved) }
+  } catch {
+    // Ignore unavailable or malformed local storage.
+  }
+  return { to: '', subject: '', body: '' }
+}
+
 export default function App() {
-  const [to, setTo] = useState('')
-  const [subject, setSubject] = useState('')
-  const [body, setBody] = useState('')
+  const [initialDraft] = useState(loadDraft)
+  const [to, setTo] = useState(initialDraft.to)
+  const [subject, setSubject] = useState(initialDraft.subject)
+  const [body, setBody] = useState(initialDraft.body)
   const [notice, setNotice] = useState('')
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify({ to, subject, body }))
+    } catch {
+      setNotice('ブラウザへの自動保存ができなかったよ')
+    }
+  }, [to, subject, body])
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
@@ -152,7 +175,7 @@ export default function App() {
           </Typography>
         )}
         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', px: 1, pt: 1.5, lineHeight: 1.6 }}>
-          現在はUI試作。Gmail APIによる送信はまだ未接続だよ。
+          入力内容はこのブラウザに自動保存されるよ。Gmail APIによる送信はまだ未接続。
         </Typography>
       </Box>
 
