@@ -1,11 +1,10 @@
 import { useState } from 'react'
 import {
-  AppBar, Avatar, Box, Button, Chip, Divider, IconButton, Paper,
-  Stack, TextField, Toolbar, Typography,
+  AppBar, Box, Button, Divider, IconButton, Paper, Stack, TextField,
+  Toolbar, Typography, useMediaQuery, useTheme,
 } from '@mui/material'
 import {
-  Add, ArrowBack, AttachFile, DeleteOutline, HelpOutline,
-  MoreVert, Send, Settings, StarBorder,
+  ArrowBack, DeleteOutline, MoreVert, SaveAlt, SendRounded,
 } from '@mui/icons-material'
 
 export default function App() {
@@ -13,6 +12,8 @@ export default function App() {
   const [subject, setSubject] = useState('')
   const [body, setBody] = useState('')
   const [notice, setNotice] = useState('')
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
   const handleDraft = () => {
     const draft = `To: ${to}\nSubject: ${subject}\nContent-Type: text/plain; charset=UTF-8\n\n${body}`
@@ -23,81 +24,162 @@ export default function App() {
     link.download = 'mail-draft.txt'
     link.click()
     URL.revokeObjectURL(url)
-    setNotice('プレーンテキストの下書きを保存したよ（まだGmail送信は未接続）')
+    setNotice('プレーンテキストの下書きを保存したよ')
+  }
+
+  const clearDraft = () => {
+    setTo('')
+    setSubject('')
+    setBody('')
+    setNotice('入力内容をクリアしたよ')
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
-      <AppBar position="static" color="transparent" elevation={0}>
-        <Toolbar sx={{ gap: 1 }}>
-          <Avatar sx={{ bgcolor: '#1967d2', width: 34, height: 34, fontSize: 16 }}>m</Avatar>
-          <Typography variant="h6" color="text.primary" sx={{ fontWeight: 600, flexGrow: 1 }}>
-            webml-google
-          </Typography>
-          <IconButton aria-label="ヘルプ"><HelpOutline /></IconButton>
-          <IconButton aria-label="設定"><Settings /></IconButton>
-          <Avatar sx={{ width: 32, height: 32, bgcolor: '#7e57c2' }}>ぴ</Avatar>
+    <Box sx={{ minHeight: '100dvh', bgcolor: '#f6f8fc', pb: { xs: 10, sm: 3 } }}>
+      <AppBar
+        position="sticky"
+        color="inherit"
+        elevation={0}
+        sx={{ bgcolor: '#f6f8fc', color: 'text.primary', borderBottom: '1px solid #e7eaf0' }}
+      >
+        <Toolbar sx={{ minHeight: { xs: 58, sm: 68 }, px: { xs: 1, sm: 2 }, gap: 1 }}>
+          <IconButton aria-label="戻る" edge="start" onClick={clearDraft} sx={{ mr: 0.5 }}>
+            <ArrowBack />
+          </IconButton>
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Typography sx={{ fontSize: 17, fontWeight: 600, lineHeight: 1.3 }}>
+              新規メッセージ
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              webml-google · テキストメール
+            </Typography>
+          </Box>
+          <IconButton aria-label="下書きTXTを保存" onClick={handleDraft}>
+            <SaveAlt />
+          </IconButton>
+          <IconButton aria-label="その他の操作">
+            <MoreVert />
+          </IconButton>
         </Toolbar>
       </AppBar>
 
-      <Box sx={{ display: 'flex', gap: 2, p: { xs: 1.5, md: 3 }, maxWidth: 1440, mx: 'auto' }}>
-        <Box sx={{ width: { xs: 56, sm: 220 }, flexShrink: 0 }}>
-          <Button
-            variant="contained" startIcon={<Add />}
-            sx={{ borderRadius: 4, px: { xs: 1.5, sm: 2.5 }, py: 1.8, minWidth: 0, boxShadow: 1 }}
-          >
-            <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>作成</Box>
-          </Button>
-          <Stack spacing={1} sx={{ mt: 3 }}>
-            <Chip icon={<Send />} label="送信" variant="outlined" sx={{ justifyContent: 'flex-start', px: 1 }} />
-            <Chip icon={<StarBorder />} label="スター付き" variant="outlined" sx={{ justifyContent: 'flex-start', px: 1, display: { xs: 'none', sm: 'flex' } }} />
-          </Stack>
-        </Box>
-
-        <Paper elevation={0} sx={{ flex: 1, minWidth: 0, borderRadius: 3, p: { xs: 2, sm: 3 }, minHeight: 580 }}>
-          <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
-            <IconButton size="small" aria-label="戻る"><ArrowBack /></IconButton>
-            <Typography variant="h6" sx={{ flexGrow: 1, fontSize: 19 }}>新規メッセージ</Typography>
-            <IconButton size="small" aria-label="その他"><MoreVert /></IconButton>
-          </Stack>
-          <Divider />
+      <Box sx={{ width: '100%', maxWidth: 760, mx: 'auto', px: { xs: 1, sm: 2 }, pt: { xs: 1, sm: 3 } }}>
+        <Paper
+          elevation={0}
+          sx={{
+            border: { xs: 'none', sm: '1px solid #e5e8ef' },
+            borderRadius: { xs: 2.5, sm: 3 },
+            overflow: 'hidden',
+            bgcolor: 'white',
+          }}
+        >
           <TextField
-            fullWidth variant="standard" placeholder="宛先"
-            value={to} onChange={(event) => setTo(event.target.value)}
+            fullWidth
+            variant="standard"
+            placeholder="宛先"
+            value={to}
+            onChange={(event) => setTo(event.target.value)}
             InputProps={{ disableUnderline: true }}
-            sx={{ py: 1.5 }}
+            inputProps={{ 'aria-label': '宛先' }}
+            sx={{
+              px: { xs: 2, sm: 2.5 }, py: 1.7,
+              '& input': { fontSize: 16 },
+            }}
           />
           <Divider />
           <TextField
-            fullWidth variant="standard" placeholder="件名"
-            value={subject} onChange={(event) => setSubject(event.target.value)}
+            fullWidth
+            variant="standard"
+            placeholder="件名"
+            value={subject}
+            onChange={(event) => setSubject(event.target.value)}
             InputProps={{ disableUnderline: true }}
-            sx={{ py: 1.5 }}
+            inputProps={{ 'aria-label': '件名' }}
+            sx={{
+              px: { xs: 2, sm: 2.5 }, py: 1.7,
+              '& input': { fontSize: 16 },
+            }}
           />
           <Divider />
           <TextField
-            fullWidth multiline minRows={14} variant="standard"
+            fullWidth
+            multiline
+            minRows={isMobile ? 16 : 20}
+            variant="standard"
             placeholder="メッセージを入力…"
-            value={body} onChange={(event) => setBody(event.target.value)}
+            value={body}
+            onChange={(event) => setBody(event.target.value)}
             InputProps={{ disableUnderline: true }}
-            sx={{ py: 2, '& textarea': { fontFamily: 'monospace', lineHeight: 1.7 } }}
+            inputProps={{ 'aria-label': '本文' }}
+            sx={{
+              px: { xs: 2, sm: 2.5 }, py: 2,
+              '& textarea': {
+                fontFamily: 'ui-monospace, SFMono-Regular, Consolas, monospace',
+                fontSize: 15,
+                lineHeight: 1.8,
+              },
+            }}
           />
-          <Stack direction="row" alignItems="center" spacing={1} sx={{ mt: 2 }}>
-            <Button variant="contained" endIcon={<Send />} onClick={handleDraft} sx={{ borderRadius: 5, px: 3 }}>
+          <Divider />
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+            sx={{ px: { xs: 1.5, sm: 2.5 }, py: 1.5, gap: 1 }}
+          >
+            <Button
+              variant="contained"
+              onClick={handleDraft}
+              startIcon={<SaveAlt />}
+              sx={{
+                borderRadius: 6,
+                textTransform: 'none',
+                fontWeight: 600,
+                px: 2.5,
+                py: 1.15,
+                minHeight: 46,
+                boxShadow: 'none',
+              }}
+            >
               下書きTXTを保存
             </Button>
-            <IconButton aria-label="添付（未実装）" disabled><AttachFile /></IconButton>
-            <Box sx={{ flexGrow: 1 }} />
-            <IconButton aria-label="削除" onClick={() => { setTo(''); setSubject(''); setBody(''); setNotice('入力内容をクリアしたよ') }}>
+            <IconButton aria-label="入力内容を削除" onClick={clearDraft} sx={{ width: 46, height: 46 }}>
               <DeleteOutline />
             </IconButton>
           </Stack>
-          {notice && <Typography role="status" variant="body2" color="text.secondary" sx={{ mt: 2 }}>{notice}</Typography>}
-          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 2 }}>
-            現在はUI試作。Gmail APIによる送信はまだ実装していません。
-          </Typography>
         </Paper>
+
+        {notice && (
+          <Typography role="status" variant="body2" color="text.secondary" sx={{ px: 1, pt: 1.5 }}>
+            {notice}
+          </Typography>
+        )}
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', px: 1, pt: 1.5, lineHeight: 1.6 }}>
+          現在はUI試作。Gmail APIによる送信はまだ未接続だよ。
+        </Typography>
       </Box>
+
+      {isMobile && (
+        <Box
+          sx={{
+            position: 'fixed', bottom: 0, left: 0, right: 0,
+            px: 2, pt: 1.25, pb: 'max(10px, env(safe-area-inset-bottom))',
+            bgcolor: 'rgba(246,248,252,0.96)',
+            borderTop: '1px solid #e7eaf0',
+            backdropFilter: 'blur(12px)',
+          }}
+        >
+          <Button
+            fullWidth
+            variant="contained"
+            onClick={handleDraft}
+            startIcon={<SaveAlt />}
+            sx={{ borderRadius: 6, minHeight: 48, textTransform: 'none', fontWeight: 600, boxShadow: 'none' }}
+          >
+            プレーンテキストで保存
+          </Button>
+        </Box>
+      )}
     </Box>
   )
 }
