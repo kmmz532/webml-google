@@ -78,8 +78,10 @@ export default function App() {
     try {
       const raw = createRawMessage({ from: accountEmail, to: parseRecipients(to), subject, body })
       await sendGmailRaw(accessToken, raw)
+      setTo('')
+      setSubject('')
+      setBody('')
       setNotice('メールを送信したよ')
-      clearDraft()
     } catch (error) {
       setNotice(error instanceof Error ? error.message : '送信に失敗したよ')
     } finally {
@@ -203,7 +205,7 @@ export default function App() {
             >
               下書きTXTを保存
             </Button>
-            <IconButton aria-label="入力内容を削除" onClick={clearDraft} sx={{ width: 46, height: 46 }}>
+            <Button variant="outlined" onClick={sendMail} disabled={sending || !accessToken} sx={{ minHeight: 46, borderRadius: 6, textTransform: 'none' }}>\n              {sending ? '送信中…' : '送信'}\n            </Button>\n            <IconButton aria-label="入力内容を削除" onClick={clearDraft} sx={{ width: 46, height: 46 }}>
               <DeleteOutline />
             </IconButton>
           </Stack>
