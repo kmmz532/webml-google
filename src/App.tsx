@@ -39,7 +39,7 @@ export default function App() {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
   const handleDraft = () => {
-    const draft = `To: ${to}\nSubject: ${subject}\nContent-Type: text/plain; charset=UTF-8\n\n${body}`
+    const draft = `宛先: ${to}\n件名: ${subject}\n\n${body}`
     const blob = new Blob([draft], { type: 'text/plain;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
@@ -135,7 +135,7 @@ export default function App() {
               px: { xs: 2, sm: 2.5 }, py: 2,
               '& textarea': {
                 fontFamily: 'ui-monospace, SFMono-Regular, Consolas, monospace',
-                fontSize: 15,
+                fontSize: 16,
                 lineHeight: 1.8,
               },
             }}
