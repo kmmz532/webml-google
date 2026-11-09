@@ -4,7 +4,7 @@ import {
   Toolbar, Typography, useMediaQuery, useTheme,
 } from '@mui/material'
 import {
-  ArrowBack, DeleteOutline, MoreVert, SaveAlt, SendRounded,
+  DeleteOutline, MoreVert, SaveAlt,
 } from '@mui/icons-material'
 
 export default function App() {
@@ -43,9 +43,6 @@ export default function App() {
         sx={{ bgcolor: '#f6f8fc', color: 'text.primary', borderBottom: '1px solid #e7eaf0' }}
       >
         <Toolbar sx={{ minHeight: { xs: 58, sm: 68 }, px: { xs: 1, sm: 2 }, gap: 1 }}>
-          <IconButton aria-label="戻る" edge="start" onClick={clearDraft} sx={{ mr: 0.5 }}>
-            <ArrowBack />
-          </IconButton>
           <Box sx={{ flex: 1, minWidth: 0 }}>
             <Typography sx={{ fontSize: 17, fontWeight: 600, lineHeight: 1.3 }}>
               新規メッセージ
